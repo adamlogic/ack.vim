@@ -8,21 +8,25 @@
 
 let g:ackprg="ack\\ -H\\ --nocolor\\ --nogroup\\ --column"
 
-function! Ack(command, format, args)
+function! Ack(command, format, list, args)
     let grepprg_bak=&grepprg
     exec "set grepprg=" . g:ackprg
     let grepformat_bak=&grepformat
     exec "set grepformat=" . a:format
     execute "silent! " . a:command . " " . a:args
-    botright copen
+    if a:list == "quickfix"
+      botright copen
+    else
+      botright lopen
+    endif
     let &grepprg=grepprg_bak
     let &grepformat=grepformat_bak
     exec "redraw!"
 endfunction
 
-command! -nargs=* -complete=file Ack     call Ack("grep!",    "%f:%l:%c:%m", <q-args>)
-command! -nargs=* -complete=file AckAdd  call Ack("grepadd!", "%f:%l:%c:%m", <q-args>)
-command! -nargs=* -complete=file LAck    call Ack("lgrep!",   "%f:%l:%c:%m", <q-args>)
-command! -nargs=* -complete=file LAckAdd call Ack("lgrepadd!","%f:%l:%c:%m", <q-args>)
+command! -nargs=* -complete=file Ack     call Ack("grep!",    "%f:%l:%c:%m", "quickfix", <q-args>)
+command! -nargs=* -complete=file AckAdd  call Ack("grepadd!", "%f:%l:%c:%m", "quickfix", <q-args>)
+command! -nargs=* -complete=file LAck    call Ack("lgrep!",   "%f:%l:%c:%m", "location-list", <q-args>)
+command! -nargs=* -complete=file LAckAdd call Ack("lgrepadd!","%f:%l:%c:%m", "location-list", <q-args>)
 
 command! -nargs=* -complete=file AckG    call Ack("grep! -g", "%f", <q-args>)
